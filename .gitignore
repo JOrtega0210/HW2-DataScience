@@ -8,8 +8,8 @@ venv/
 data/raw/**
 !data/raw/**/.gitkeep
 
-# Large processed / routing cache — evaluate case by case before committing
-data/processed/routing_cache/*.parquet
+# La matriz de ruteo precomputada SI se versiona (deliverable explicito del
+# enunciado: el dashboard debe funcionar sin el motor de ruteo levantado).
 
 # Logs (keep dir, not noisy run logs)
 logs/*.log

@@ -1,0 +1,23 @@
+{
+  "departamento": "PIURA",
+  "n_demanda": 1722,
+  "n_facilities": 32,
+  "n_pares_matriz": 55104,
+  "pares_sin_ruta": 0,
+  "puntos_demanda_sin_ninguna_ruta": 0,
+  "snapping": {
+    "demanda_media_m": 443.55673194831587,
+    "demanda_mediana_m": 49.037376,
+    "demanda_p99_m": 4721.044203879988,
+    "demanda_max_m": 19487.840033,
+    "demanda_fallidos": 0,
+    "facilities_media_m": 15.329375500000001,
+    "facilities_max_m": 65.094068,
+    "facilities_fallidos": 0
+  },
+  "comparacion_recta_vs_red": {
+    "coincide_facility_mas_cercano_pct": 0.502903600464576,
+    "factor_desvio_promedio": 1.8723859280278903,
+    "factor_desvio_mediana": 1.724747851399598
+  }
+}

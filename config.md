@@ -102,6 +102,32 @@ Resultados completos en `logs/data_quality_report.json` (se regenera con
    este problema en los límites administrativos (`"Perú"` → `"Per�"` en
    `adm0_name`), documentado arriba.
 
+## Fase 2a — Routing piloto (Piura, `src/routing.py`)
+
+Servidor OSRM local (Docker, ver README.md), motor `car`, algoritmo MLD.
+Demanda = centros poblados dispersos + puntos de demanda urbana (Fase 1a),
+filtrados a población > 0. Oferta = RENIPRESS resolutivo + activo + con
+coordenadas utilizables (Fase 1b). Matriz completa origen×facility vía
+`/table`, en lotes de 150 puntos de demanda para no exceder límites de URL,
+cacheada en `data/processed/routing_cache/matrix_<depto>.parquet` (**sí se
+versiona en git** — es un deliverable explícito del enunciado). Reporte por
+departamento en `logs/routing_report_<depto>.json`.
+
+**Resultado del piloto (Piura, 1,722 puntos de demanda × 32 facilities =
+55,104 pares, corrida completa en ~9s):**
+
+- Snapping: demanda — media 444m, mediana 49m, p99 4,721m, máx. 19,488m (0
+  fallidos). Facilities — media 15m, máx. 65m (0 fallidos). El máximo de
+  19.5km en demanda amerita revisión en Fase 1b/2b (probablemente un
+  centro poblado disperso muy alejado de cualquier vía mapeada en OSM).
+- 0 pares sin ruta (red bien conectada en Piura); 0 puntos de demanda sin
+  ninguna ruta válida.
+- Comparación recta vs. red: coincide el facility más cercano en **50.3%**
+  de los puntos — es decir, para casi la mitad de los puntos de demanda,
+  la facility resolutiva geográficamente más cercana **no** es la más
+  rápida por carretera. Factor de desvío promedio (distancia red /
+  distancia recta): **1.87x**.
+
 ## Fuentes de datos y sustituciones documentadas
 
 - **RENIPRESS / SUSALUD** (oferta — establecimientos de salud): CSV mensual,

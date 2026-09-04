@@ -15,7 +15,8 @@ Este repo se construye de forma incremental, fase por fase. Estado actual:
 - [x] Fase 0 — Scaffold del repositorio
 - [x] Fase 1a — Adquisición de datos (RENIPRESS, límites administrativos, centros poblados)
 - [x] Fase 1b — Validación de datos (6 reglas sobre RENIPRESS + reporte de calidad)
-- [ ] Fase 2 — Ruteo y matriz de tiempos de viaje
+- [x] Fase 2a — Routing piloto (Piura, matriz completa vía OSRM)
+- [ ] Fase 2b — Routing completo (3 departamentos)
 - [ ] Fase 3 — Construcción de métricas
 - [ ] Fase 4 — Dashboard Streamlit
 - [ ] Fase 5 — Reporte LaTeX
@@ -65,14 +66,23 @@ docker run -t -v "${PWD}/data/raw/osm:/data" osrm/osrm-backend osrm-partition /d
 docker run -t -v "${PWD}/data/raw/osm:/data" osrm/osrm-backend osrm-customize /data/peru-latest.osrm
 ```
 
-Y se sirve con:
+Y se sirve con (contenedor persistente, nombrado para poder pararlo/verlo
+con `docker ps` / `docker logs osrm-server`):
 
 ```bash
-docker run -d -p 5000:5000 -v "${PWD}/data/raw/osm:/data" osrm/osrm-backend osrm-routed --algorithm mld /data/peru-latest.osrm
+docker run -d --name osrm-server -p 5000:5000 -v "${PWD}/data/raw/osm:/data" osrm/osrm-backend osrm-routed --algorithm mld --max-table-size 1000000 /data/peru-latest.osrm
+```
+
+Verificar que está listo (tarda ~15-30s en cargar el grafo en memoria):
+
+```bash
+curl "http://localhost:5000/route/v1/driving/-77.0428,-12.0464;-77.1465,-11.9950?overview=false"
 ```
 
 Los archivos `peru-latest.osrm*` (~1.5GB) no se versionan en git; se
-regeneran con los comandos de arriba.
+regeneran con los comandos de arriba. Si Docker Desktop estaba apagado,
+abrirlo primero y esperar a que el daemon responda (`docker info`) antes
+de correr `docker run`.
 
 ## Cómo correr el pipeline
 
@@ -116,6 +126,24 @@ sobre los establecimientos RENIPRESS de los 3 departamentos, normaliza
   `coords_utilizables` para saber cuáles sirven para ruteo en Fase 2.
 - `logs/data_quality_report.json` — conteos y la acción tomada por cada
   regla.
+
+### Fase 2a — Routing piloto
+
+Con el servidor OSRM corriendo (ver arriba):
+
+```bash
+python routing.py PIURA
+```
+
+Construye la demanda (dispersos + urbano) y la oferta (RENIPRESS
+resolutivo/activo/coords utilizables) del departamento indicado, consulta
+`/table` de OSRM por lotes, y cachea la matriz completa en
+`data/processed/routing_cache/matrix_<depto>.parquet` (**versionada en
+git** — deliverable explícito para que el dashboard funcione sin el motor
+de ruteo levantado). Imprime progreso por lote, estadísticas de snapping,
+y la comparación distancia recta vs. red; el detalle completo queda en
+`logs/routing_report_<depto>.json`. Es re-ejecutable sin recomputar
+(`force=True` en `build_matrix` para forzar).
 
 ## Cómo correr el dashboard
 
