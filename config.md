@@ -40,6 +40,9 @@ fuentes:
   renipress_url: https://www.datosabiertos.gob.pe/sites/default/files/RENIPRESS_31-08-2026.csv
   admin_boundaries_url: https://data.humdata.org/dataset/54fc7f4d-f4c0-4892-91f6-2fe7c1ecf363/resource/63647792-0951-40d2-a30e-4a0e60f7a176/download/per_admin_boundaries.geojson.zip
   centros_poblados_dispersos_query_url: https://www.idep.gob.pe/geoportal/rest/services/DATOS_GEOESPACIALES/CENTROS_POBLADOS_DISPERSOS/MapServer/0/query
+  capitales_distritales_query_url: https://www.idep.gob.pe/geoportal/rest/services/DATOS_GEOESPACIALES/CENTROS_POBLADOS/MapServer/3/query
+  poblacion_distrital_url: https://cdn.www.gob.pe/uploads/document/file/8261096/6894980-peru-poblacion-total-proyectada-al-30-de-junio-de-cada-ano-segun-departamento-provincia-y-distrito-2018-2026.xlsx
+  poblacion_distrital_anio: 2026
 ```
 
 ## Departamentos analizados
@@ -94,16 +97,42 @@ Exactamente tres, uno por macro-región (ver YAML arriba: `departamentos`).
   INEI, consultable directamente vía HTTP/GeoJSON:
   `fuentes.centros_poblados_dispersos_query_url`.
 
-  > **Limitación conocida (pendiente de resolver, no bloqueante para
-  > avanzar el pipeline):** esta capa solo cubre centros poblados
-  > *dispersos* (rurales, poblaciones pequeñas — verificado: en Piura,
-  > 1711 puntos, máx. 150 hab/punto, suma total 106,051 hab. de ~2
-  > millones del departamento). La población urbana concentrada no está
-  > representada como puntos en esta capa. Se documentará como límite del
-  > análisis en el reporte (Fase 5) y se evaluará en una sesión futura
-  > si se agrega un punto de demanda urbano por distrito (capital
-  > distrital + población urbana desde INEI/SIRTOD) para no subestimar
-  > la cobertura en las ciudades.
+  > **Limitación detectada y resuelta:** esta capa solo cubre centros
+  > poblados *dispersos* (rurales, poblaciones pequeñas — verificado: en
+  > Piura, 1711 puntos, máx. 150 hab/punto, suma total 106,051 hab. de
+  > ~2 millones del departamento). La población urbana concentrada no
+  > está representada como puntos individuales en ninguna capa pública
+  > del geoportal IDEP. Se resolvió construyendo un **punto de demanda
+  > urbano sintético por distrito** (`src/demand_urbano.py`,
+  > `data/processed/demand_points_urbano.geojson`):
+  > `pob_urbana_estimada(distrito) = pob_total_proyectada_2026(distrito) − Σ pob_total_dispersa(distrito)`,
+  > ubicado en el punto "Capital de Distrito" del gazetteer nacional IGN
+  > (`CENTROS_POBLADOS/MapServer/3`, filtro `CATEGORIA='Capital de
+  > Distrito'`), con la codificación UBIGEO (campo de 10 dígitos del
+  > gazetteer, primeros 6 = UBIGEO distrital — el nombre de ese campo
+  > llega corrupto desde el propio geoportal por pérdida de un byte en la
+  > tilde, así que se detecta por patrón de valor, no por nombre de
+  > columna) como llave de cruce con la población distrital. Es una
+  > simplificación deliberada (un punto por distrito para toda su
+  > población urbana, no manzana por manzana) — razonable porque el
+  > interés del análisis es el tiempo de viaje *hacia* la ciudad, no
+  > dentro de ella. Documentar como supuesto metodológico en el reporte
+  > (Fase 5), no como limitación no resuelta.
+  >
+  > **Hallazgo de validación cruzada (residual, pendiente para Fase 1b):**
+  > la suma de los distritos procesados no calza exactamente con la fila
+  > de departamento del Excel de INEI: Piura calza exacto (diferencia 0);
+  > Cusco queda corto en 17,943 hab. porque el Excel 2026 incluye 4
+  > distritos creados en 2021 (Ley N.° 31197: Kumpirushiato, Cielo Punco,
+  > Manitea, Unión Ashéninka, desprendidos de Pichari) que **no existen**
+  > en la capa de límites administrativos usada (HDX/IGN, vigente al
+  > 2020-07-14); Loreto queda corto en 3,179 hab., pero esa diferencia
+  > **ya existe dentro del propio Excel de INEI** (la suma de sus filas
+  > distritales no iguala su propia fila departamental — no es un error
+  > de este pipeline). `src/demand_urbano.py` imprime esta verificación
+  > en cada corrida. Pendiente para Fase 1b: decidir si se agregan los 4
+  > distritos nuevos de Cusco manualmente (UBIGEO y población ya
+  > identificados) o se documentan como exclusión conocida en el reporte.
 
 - **OSM Perú**: extracto Geofabrik, ver `README.md` (sección de routing) —
   ya descargado y grafo OSRM ya construido (Sesión 1).

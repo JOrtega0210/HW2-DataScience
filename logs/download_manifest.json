@@ -63,5 +63,34 @@
     "publisher": "INEI, via geoportal IDEP (ArcGIS REST)",
     "limitacion": "Solo cubre centros poblados dispersos (rurales); no incluye poblacion urbana concentrada.",
     "downloaded_at": "2026-09-04T14:40:48+00:00"
+  },
+  "capitales_distritales_piura": {
+    "url": "https://www.idep.gob.pe/geoportal/rest/services/DATOS_GEOESPACIALES/CENTROS_POBLADOS/MapServer/3/query",
+    "local_path": "data/raw/centros_poblados/capitales_distritales_piura.geojson",
+    "n_features": 64,
+    "publisher": "Instituto Geografico Nacional (IGN), via geoportal IDEP (ArcGIS REST)",
+    "downloaded_at": "2026-09-04T14:59:29+00:00"
+  },
+  "capitales_distritales_cusco": {
+    "url": "https://www.idep.gob.pe/geoportal/rest/services/DATOS_GEOESPACIALES/CENTROS_POBLADOS/MapServer/3/query",
+    "local_path": "data/raw/centros_poblados/capitales_distritales_cusco.geojson",
+    "n_features": 108,
+    "publisher": "Instituto Geografico Nacional (IGN), via geoportal IDEP (ArcGIS REST)",
+    "downloaded_at": "2026-09-04T14:59:30+00:00"
+  },
+  "capitales_distritales_loreto": {
+    "url": "https://www.idep.gob.pe/geoportal/rest/services/DATOS_GEOESPACIALES/CENTROS_POBLADOS/MapServer/3/query",
+    "local_path": "data/raw/centros_poblados/capitales_distritales_loreto.geojson",
+    "n_features": 49,
+    "publisher": "Instituto Geografico Nacional (IGN), via geoportal IDEP (ArcGIS REST)",
+    "downloaded_at": "2026-09-04T14:59:30+00:00"
+  },
+  "poblacion_distrital": {
+    "url": "https://cdn.www.gob.pe/uploads/document/file/8261096/6894980-peru-poblacion-total-proyectada-al-30-de-junio-de-cada-ano-segun-departamento-provincia-y-distrito-2018-2026.xlsx",
+    "local_path": "data/raw/poblacion/poblacion_distrital_proyectada_2018_2026.xlsx",
+    "size_bytes": 212580,
+    "publisher": "INEI - Estimaciones y Proyecciones de Poblacion",
+    "anio": 2026,
+    "downloaded_at": "2026-09-04T14:59:46+00:00"
   }
 }

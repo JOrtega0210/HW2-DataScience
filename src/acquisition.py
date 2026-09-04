@@ -164,10 +164,97 @@ def download_centros_poblados_dispersos(force: bool = False) -> list[Path]:
     return paths
 
 
+def _query_capitales_distritales(url: str, departamento: str) -> list[dict]:
+    features: list[dict] = []
+    offset = 0
+    page_size = 1000
+    while True:
+        params = {
+            "where": f"DEP='{departamento}' AND CATEGORIA='Capital de Distrito'",
+            "outFields": "*",
+            "outSR": 4326,
+            "resultOffset": offset,
+            "resultRecordCount": page_size,
+            "f": "geojson",
+        }
+        resp = requests.get(url, params=params, headers=HEADERS, timeout=60)
+        resp.raise_for_status()
+        page = resp.json().get("features", [])
+        features.extend(page)
+        if len(page) < page_size:
+            break
+        offset += page_size
+    return features
+
+
+def download_capitales_distritales(force: bool = False) -> list[Path]:
+    """Puntos 'Capital de Distrito' del gazetteer nacional IGN (usados como ancla del punto de demanda urbano)."""
+    cfg = load_config()
+    url = cfg["fuentes"]["capitales_distritales_query_url"]
+    dest_dir = ROOT / "data" / "raw" / "centros_poblados"
+    dest_dir.mkdir(parents=True, exist_ok=True)
+
+    departamentos = list(cfg["departamentos"].values())
+    paths = []
+    for dep in departamentos:
+        dest = dest_dir / f"capitales_distritales_{dep.lower()}.geojson"
+        if dest.exists() and not force:
+            print(f"[acquisition] Capitales distritales de {dep} ya existen ({dest.name}), se omite.")
+            paths.append(dest)
+            continue
+
+        print(f"[acquisition] Consultando capitales distritales de {dep} ...")
+        features = _query_capitales_distritales(url, dep)
+        geojson = {"type": "FeatureCollection", "features": features}
+        dest.write_text(json.dumps(geojson, ensure_ascii=False), encoding="utf-8")
+        print(f"[acquisition] {dep}: {len(features)} capitales distritales")
+
+        _record(
+            f"capitales_distritales_{dep.lower()}",
+            url=url,
+            local_path=dest.relative_to(ROOT).as_posix(),
+            n_features=len(features),
+            publisher="Instituto Geografico Nacional (IGN), via geoportal IDEP (ArcGIS REST)",
+        )
+        paths.append(dest)
+    return paths
+
+
+def download_poblacion_distrital(force: bool = False) -> Path:
+    """Poblacion total proyectada por distrito (INEI), usada para estimar poblacion urbana = total - dispersa."""
+    cfg = load_config()
+    url = cfg["fuentes"]["poblacion_distrital_url"]
+    dest_dir = ROOT / "data" / "raw" / "poblacion"
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    dest = dest_dir / "poblacion_distrital_proyectada_2018_2026.xlsx"
+
+    if dest.exists() and not force:
+        print(f"[acquisition] Poblacion distrital ya existe ({dest.name}), se omite descarga.")
+        return dest
+
+    print(f"[acquisition] Descargando poblacion distrital desde {url} ...")
+    resp = requests.get(url, headers=HEADERS, timeout=120)
+    resp.raise_for_status()
+    dest.write_bytes(resp.content)
+    print(f"[acquisition] Poblacion distrital guardada en {dest} ({len(resp.content) / 1e6:.1f} MB)")
+
+    _record(
+        "poblacion_distrital",
+        url=url,
+        local_path=dest.relative_to(ROOT).as_posix(),
+        size_bytes=len(resp.content),
+        publisher="INEI - Estimaciones y Proyecciones de Poblacion",
+        anio=cfg["fuentes"]["poblacion_distrital_anio"],
+    )
+    return dest
+
+
 def download_all(force: bool = False) -> None:
     download_renipress(force=force)
     download_admin_boundaries(force=force)
     download_centros_poblados_dispersos(force=force)
+    download_capitales_distritales(force=force)
+    download_poblacion_distrital(force=force)
     print("[acquisition] Fase 1a completa. Ver logs/download_manifest.json para el detalle.")
 
 

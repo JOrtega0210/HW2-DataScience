@@ -27,7 +27,9 @@ Este repo se construye de forma incremental, fase por fase. Estado actual:
 ├── config.md               # todos los parámetros (departamentos, umbrales, rutas, motor de ruteo)
 ├── requirements.txt
 ├── src/
+│   ├── config.py             # parser del bloque yaml en config.md
 │   ├── acquisition.py       # Fase 1 — descarga de fuentes
+│   ├── demand_urbano.py      # Fase 1 — construye puntos de demanda urbana (ver config.md)
 │   ├── validation.py        # Fase 1 — reglas de calidad de datos
 │   ├── routing.py           # Fase 2 — motor de ruteo + caché
 │   ├── metrics.py           # Fase 3 — indicadores de acceso
@@ -81,12 +83,23 @@ cd src
 python acquisition.py
 ```
 
-Descarga (o reutiliza si ya existen) RENIPRESS, límites administrativos y
-centros poblados dispersos hacia `data/raw/`, y registra cada descarga en
+Descarga (o reutiliza si ya existen) RENIPRESS, límites administrativos,
+centros poblados dispersos, capitales distritales y población distrital
+proyectada hacia `data/raw/`, y registra cada descarga en
 `logs/download_manifest.json`. Es re-ejecutable sin re-descargar: pasar
-`force=True` a las funciones individuales (`download_renipress`,
-`download_admin_boundaries`, `download_centros_poblados_dispersos`) para
-forzar una descarga nueva.
+`force=True` a las funciones individuales para forzar una descarga nueva.
+
+Luego, para construir los puntos de demanda urbana (población urbana
+estimada por distrito = población total proyectada − población dispersa,
+ver [`config.md`](config.md)):
+
+```bash
+python demand_urbano.py
+```
+
+Genera `data/processed/demand_points_urbano.geojson` e imprime una
+verificación cruzada contra los totales departamentales del Excel de
+INEI (ver salida del script para las diferencias residuales conocidas).
 
 ## Cómo correr el dashboard
 
