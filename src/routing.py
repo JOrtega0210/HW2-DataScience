@@ -155,6 +155,13 @@ def build_matrix(departamento: str, port: int = None, force: bool = False) -> Pa
         print(f"[routing] lote {i}/{len(batches)} ({len(batch)} puntos) OK - {elapsed:.1f}s transcurridos")
 
     matrix = pd.concat(all_rows, ignore_index=True)
+    snap_max = cfg["routing"]["snap_confiable_max_m"]
+    # snap_confiable es a nivel de PAR (demanda, facility): solo True si ambos
+    # extremos snappean cerca de una via mapeada. Para el diagnostico "cuantos
+    # PUNTOS DE DEMANDA tienen mala calidad de snap" (independiente de que
+    # facility le toque emparejado), ver summarize_nearest() -- ahi se agrupa
+    # solo por snap_dist_demand_m, sin mezclar el snap del lado de la oferta.
+    matrix["snap_confiable"] = (matrix["snap_dist_demand_m"] <= snap_max) & (matrix["snap_dist_supply_m"] <= snap_max)
     matrix.to_parquet(dest)
     print(f"[routing] matriz completa: {len(matrix)} filas ({len(demand)} demanda x {len(supply)} facilities) -> {dest}")
     return dest
@@ -183,6 +190,8 @@ def summarize_nearest(departamento: str, write_report: bool = True) -> pd.DataFr
 
     demand_snap = matrix.groupby("demand_id")["snap_dist_demand_m"].first()
     supply_snap = matrix.groupby("facility_id")["snap_dist_supply_m"].first()
+    snap_max = load_config()["routing"]["snap_confiable_max_m"]
+    n_demand_snap_no_confiable = int((demand_snap > snap_max).sum())
 
     print(f"[routing] {departamento}: {len(cmp)} puntos con al menos una ruta valida")
     print(f"[routing]   pares demanda-facility sin ruta (islas / red no conectada): {unroutable_pairs}")
@@ -196,6 +205,10 @@ def summarize_nearest(departamento: str, write_report: bool = True) -> pd.DataFr
     print(
         f"[routing]   snap facilities: media {supply_snap.mean():.0f}m, max {supply_snap.max():.0f}m "
         f"({supply_snap.isna().sum()} fallidos)"
+    )
+    print(
+        f"[routing]   puntos de demanda con snap > {snap_max}m (sin via mapeada cercana, poca confianza en "
+        f"el tiempo de auto): {n_demand_snap_no_confiable} ({n_demand_snap_no_confiable / len(demand_snap):.1%})"
     )
 
     if write_report:
@@ -212,6 +225,9 @@ def summarize_nearest(departamento: str, write_report: bool = True) -> pd.DataFr
                 "demanda_p99_m": float(demand_snap.quantile(0.99)),
                 "demanda_max_m": float(demand_snap.max()),
                 "demanda_fallidos": int(demand_snap.isna().sum()),
+                "demanda_snap_no_confiable_m": snap_max,
+                "demanda_n_snap_no_confiable": n_demand_snap_no_confiable,
+                "demanda_pct_snap_no_confiable": n_demand_snap_no_confiable / len(demand_snap),
                 "facilities_media_m": float(supply_snap.mean()),
                 "facilities_max_m": float(supply_snap.max()),
                 "facilities_fallidos": int(supply_snap.isna().sum()),

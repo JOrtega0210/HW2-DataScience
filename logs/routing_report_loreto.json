@@ -1,0 +1,26 @@
+{
+  "departamento": "LORETO",
+  "n_demanda": 1808,
+  "n_facilities": 14,
+  "n_pares_matriz": 25312,
+  "pares_sin_ruta": 2268,
+  "puntos_demanda_sin_ninguna_ruta": 162,
+  "snapping": {
+    "demanda_media_m": 64285.742134646025,
+    "demanda_mediana_m": 43313.423126,
+    "demanda_p99_m": 331335.91090348014,
+    "demanda_max_m": 414474.748046,
+    "demanda_fallidos": 0,
+    "demanda_snap_no_confiable_m": 5000,
+    "demanda_n_snap_no_confiable": 1558,
+    "demanda_pct_snap_no_confiable": 0.8617256637168141,
+    "facilities_media_m": 15847.575395142858,
+    "facilities_max_m": 133179.635853,
+    "facilities_fallidos": 0
+  },
+  "comparacion_recta_vs_red": {
+    "coincide_facility_mas_cercano_pct": 0.5565006075334143,
+    "factor_desvio_promedio": 1.180516790656049,
+    "factor_desvio_mediana": 1.016418889038623
+  }
+}

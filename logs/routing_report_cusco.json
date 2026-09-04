@@ -1,0 +1,26 @@
+{
+  "departamento": "CUSCO",
+  "n_demanda": 7271,
+  "n_facilities": 26,
+  "n_pares_matriz": 189046,
+  "pares_sin_ruta": 0,
+  "puntos_demanda_sin_ninguna_ruta": 0,
+  "snapping": {
+    "demanda_media_m": 641.7946141328565,
+    "demanda_mediana_m": 90.248838,
+    "demanda_p99_m": 6923.49746630002,
+    "demanda_max_m": 65298.823591,
+    "demanda_fallidos": 0,
+    "demanda_snap_no_confiable_m": 5000,
+    "demanda_n_snap_no_confiable": 144,
+    "demanda_pct_snap_no_confiable": 0.019804703617109065,
+    "facilities_media_m": 10.942679192307692,
+    "facilities_max_m": 71.671803,
+    "facilities_fallidos": 0
+  },
+  "comparacion_recta_vs_red": {
+    "coincide_facility_mas_cercano_pct": 0.7516160088020905,
+    "factor_desvio_promedio": 1.8975542697629308,
+    "factor_desvio_mediana": 1.7980268762605176
+  }
+}

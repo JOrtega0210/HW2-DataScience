@@ -15,8 +15,7 @@ Este repo se construye de forma incremental, fase por fase. Estado actual:
 - [x] Fase 0 — Scaffold del repositorio
 - [x] Fase 1a — Adquisición de datos (RENIPRESS, límites administrativos, centros poblados)
 - [x] Fase 1b — Validación de datos (6 reglas sobre RENIPRESS + reporte de calidad)
-- [x] Fase 2a — Routing piloto (Piura, matriz completa vía OSRM)
-- [ ] Fase 2b — Routing completo (3 departamentos)
+- [x] Fase 2 — Routing completo (3 departamentos, matriz vía OSRM + hallazgo Loreto)
 - [ ] Fase 3 — Construcción de métricas
 - [ ] Fase 4 — Dashboard Streamlit
 - [ ] Fase 5 — Reporte LaTeX
@@ -127,12 +126,12 @@ sobre los establecimientos RENIPRESS de los 3 departamentos, normaliza
 - `logs/data_quality_report.json` — conteos y la acción tomada por cada
   regla.
 
-### Fase 2a — Routing piloto
+### Fase 2 — Routing
 
 Con el servidor OSRM corriendo (ver arriba):
 
 ```bash
-python routing.py PIURA
+python routing.py PIURA   # o CUSCO / LORETO
 ```
 
 Construye la demanda (dispersos + urbano) y la oferta (RENIPRESS
@@ -144,6 +143,13 @@ de ruteo levantado). Imprime progreso por lote, estadísticas de snapping,
 y la comparación distancia recta vs. red; el detalle completo queda en
 `logs/routing_report_<depto>.json`. Es re-ejecutable sin recomputar
 (`force=True` en `build_matrix` para forzar).
+
+**Importante:** en Loreto, 86% de los puntos de demanda no tienen una vía
+mapeada cerca (mediana de distancia a la red: 43km) — el ruteo por auto no
+representa cómo se moviliza esa población. Cada par queda marcado con
+`snap_confiable` en la matriz; ver la sección de Fase 2 en
+[`config.md`](config.md) para el detalle completo, es una limitación
+central del análisis, no un error del pipeline.
 
 ## Cómo correr el dashboard
 

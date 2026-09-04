@@ -11,6 +11,9 @@
     "demanda_p99_m": 4721.044203879988,
     "demanda_max_m": 19487.840033,
     "demanda_fallidos": 0,
+    "demanda_snap_no_confiable_m": 5000,
+    "demanda_n_snap_no_confiable": 14,
+    "demanda_pct_snap_no_confiable": 0.008130081300813009,
     "facilities_media_m": 15.329375500000001,
     "facilities_max_m": 65.094068,
     "facilities_fallidos": 0

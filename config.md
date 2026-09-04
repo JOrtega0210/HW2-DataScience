@@ -27,6 +27,7 @@ routing:
   foot_port: 5001
   max_demand_points: 5000
   osm_extract: data/raw/osm/peru-latest.osm.pbf
+  snap_confiable_max_m: 5000  # snapping mayor a esto = "cerca de ninguna via mapeada", ver hallazgo Loreto en config.md
 
 coverage_bands_min: [30, 60, 120]
 
@@ -102,7 +103,7 @@ Resultados completos en `logs/data_quality_report.json` (se regenera con
    este problema en los límites administrativos (`"Perú"` → `"Per�"` en
    `adm0_name`), documentado arriba.
 
-## Fase 2a — Routing piloto (Piura, `src/routing.py`)
+## Fase 2 — Routing (`src/routing.py`)
 
 Servidor OSRM local (Docker, ver README.md), motor `car`, algoritmo MLD.
 Demanda = centros poblados dispersos + puntos de demanda urbana (Fase 1a),
@@ -110,23 +111,42 @@ filtrados a población > 0. Oferta = RENIPRESS resolutivo + activo + con
 coordenadas utilizables (Fase 1b). Matriz completa origen×facility vía
 `/table`, en lotes de 150 puntos de demanda para no exceder límites de URL,
 cacheada en `data/processed/routing_cache/matrix_<depto>.parquet` (**sí se
-versiona en git** — es un deliverable explícito del enunciado). Reporte por
+versiona en git** — es un deliverable explícito del enunciado). Cada par
+(demanda, facility) trae `snap_confiable` (ambos extremos snappearon a
+`routing.snap_confiable_max_m` o menos de una vía mapeada). Reporte por
 departamento en `logs/routing_report_<depto>.json`.
 
-**Resultado del piloto (Piura, 1,722 puntos de demanda × 32 facilities =
-55,104 pares, corrida completa en ~9s):**
+**Resultados (3 departamentos, 269,462 pares en total):**
 
-- Snapping: demanda — media 444m, mediana 49m, p99 4,721m, máx. 19,488m (0
-  fallidos). Facilities — media 15m, máx. 65m (0 fallidos). El máximo de
-  19.5km en demanda amerita revisión en Fase 1b/2b (probablemente un
-  centro poblado disperso muy alejado de cualquier vía mapeada en OSM).
-- 0 pares sin ruta (red bien conectada en Piura); 0 puntos de demanda sin
-  ninguna ruta válida.
-- Comparación recta vs. red: coincide el facility más cercano en **50.3%**
-  de los puntos — es decir, para casi la mitad de los puntos de demanda,
-  la facility resolutiva geográficamente más cercana **no** es la más
-  rápida por carretera. Factor de desvío promedio (distancia red /
-  distancia recta): **1.87x**.
+| Depto | Demanda × Facilities | Pares sin ruta | Demanda sin ninguna ruta | Coincide recta=red | Factor desvío | Snap demanda (mediana / máx.) |
+|---|---|---:|---:|---:|---:|---|
+| Piura | 1,722 × 32 = 55,104 | 0 | 0 | 50.3% | 1.87x | 49m / 19.5km |
+| Cusco | 7,271 × 26 = 189,046 | 0 | 0 | 75.2% | 1.90x | 90m / 65.3km |
+| Loreto | 1,808 × 14 = 25,312 | 2,268 (9.0%) | **162 (9.0%)** | 55.7% | 1.18x | 43.3km / 414.5km |
+
+- **Piura y Cusco**: red bien conectada (0 pares sin ruta). En ambas, la
+  facility resolutiva más cercana en línea recta **no** es la más rápida
+  por carretera en la mitad o más de los casos — el hallazgo central de
+  Fase 2 que pide discutir el enunciado.
+- **Loreto — hallazgo mayor, no un bug:** la red vial mapeada en OSM
+  prácticamente no existe fuera de Iquitos y un puñado de pueblos. Mediana
+  de distancia del punto de demanda a la vía más cercana: **43.3 km**
+  (percentil 99: 331 km, máximo 414 km). **86.2% de los puntos de demanda
+  de Loreto** (1,558 de 1,808) tienen `snap` mayor a
+  `snap_confiable_max_m` (5 km) — es decir, para la gran mayoría de la
+  población de Loreto, un "tiempo de viaje en auto" calculado por OSRM
+  **no representa cómo esa población realmente se moviliza** (transporte
+  fluvial). Además, **162 puntos de demanda quedan sin ninguna ruta
+  válida** a ninguna facility (componente de red desconectada).
+  **Consecuencia metodológica:** el análisis de "golden hour" en auto es
+  estructuralmente inadecuado para la mayor parte de Loreto. Se mantiene
+  el cálculo (todo queda flageado, nada se descarta silenciosamente —
+  `snap_confiable=False` en la matriz), pero **Fase 3 debe excluir o
+  tratar aparte** estos puntos al construir métricas de cobertura, y el
+  reporte (Fase 5) debe discutir esto como limitación central, no como
+  nota al pie — con una recomendación de innovación: un motor de ruteo
+  fluvial/multimodal para la selva quedaría fuera de alcance de este
+  proyecto pero es la extensión obviamente necesaria.
 
 ## Fuentes de datos y sustituciones documentadas
 
