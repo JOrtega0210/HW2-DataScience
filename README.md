@@ -16,7 +16,7 @@ Este repo se construye de forma incremental, fase por fase. Estado actual:
 - [x] Fase 1a — Adquisición de datos (RENIPRESS, límites administrativos, centros poblados)
 - [x] Fase 1b — Validación de datos (6 reglas sobre RENIPRESS + reporte de calidad)
 - [x] Fase 2 — Routing completo (3 departamentos, matriz vía OSRM + hallazgo Loreto)
-- [ ] Fase 3 — Construcción de métricas
+- [x] Fase 3 — Métricas (cobertura, Gini, urbano/rural, distritos críticos)
 - [ ] Fase 4 — Dashboard Streamlit
 - [ ] Fase 5 — Reporte LaTeX
 - [ ] Presentación (video)
@@ -150,6 +150,23 @@ representa cómo se moviliza esa población. Cada par queda marcado con
 `snap_confiable` en la matriz; ver la sección de Fase 2 en
 [`config.md`](config.md) para el detalle completo, es una limitación
 central del análisis, no un error del pipeline.
+
+### Fase 3 — Métricas
+
+```bash
+python metrics.py
+```
+
+Junta las 3 matrices de ruteo con la demanda y calcula todas las métricas
+de acceso, exportadas a `data/outputs/`: `access_table.csv` (una fila por
+punto de demanda), bandas de cobertura, tiempo de acceso ponderado por
+distrito/provincia/departamento, `distritos_criticos.csv`, Gini/Lorenz
+(`gini_lorenz.json`), contraste urbano/rural, y el cruce con tamaño de
+población (`cruce_poblacion_acceso.json`). Clasifica cada punto en
+`confiable` / `no_confiable` / `sin_ruta` (ver [`config.md`](config.md),
+sección Fase 3) para que las rutas de OSRM con snap lejano o velocidad
+implícita irreal (p. ej. 409km en 4,906 min en un caso real de Loreto) no
+contaminen los promedios ponderados.
 
 ## Cómo correr el dashboard
 

@@ -29,6 +29,10 @@ routing:
   osm_extract: data/raw/osm/peru-latest.osm.pbf
   snap_confiable_max_m: 5000  # snapping mayor a esto = "cerca de ninguna via mapeada", ver hallazgo Loreto en config.md
 
+metricas:
+  velocidad_minima_realista_kmh: 8  # duracion OSRM con velocidad promedio menor = ruta no confiable (ver Fase 3 en config.md)
+  gini_cap_min: 240
+
 coverage_bands_min: [30, 60, 120]
 
 paths:
@@ -147,6 +151,61 @@ departamento en `logs/routing_report_<depto>.json`.
   nota al pie — con una recomendación de innovación: un motor de ruteo
   fluvial/multimodal para la selva quedaría fuera de alcance de este
   proyecto pero es la extensión obviamente necesaria.
+
+## Fase 3 — Métricas (`src/metrics.py`)
+
+Todas las salidas en `data/outputs/` (CSV + `gini_lorenz.json` +
+`cruce_poblacion_acceso.json`). Cada métrica es una función que recibe un
+DataFrame y devuelve un DataFrame — nada de lógica de métricas en el
+dashboard (Fase 4).
+
+### Categorías de confiabilidad (clave para no corromper los promedios)
+
+Cada punto de demanda cae en una de tres categorías, nunca mezcladas al
+calcular promedios ponderados:
+
+- **`confiable`**: hay ruta y pasa dos chequeos — snap ≤ `snap_confiable_max_m`
+  en ambos extremos, **y** velocidad promedio implícita
+  (`distancia_red / tiempo`) ≥ `metricas.velocidad_minima_realista_kmh`
+  (8 km/h). Este segundo chequeo se agregó tras encontrar rutas de 409km
+  en 4,906 min (**5.0 km/h** de promedio — Ramon Castilla, Loreto): el
+  snap puede ser "confiable" y aun así la vía mapeada ser una trocha que
+  el perfil `car` de OSRM trata como casi intransitable. Sin este segundo
+  filtro, el ranking de distritos críticos salía dominado por cifras de
+  cientos de horas, sin sentido.
+- **`no_confiable`**: hay ruta, pero falla alguno de los dos chequeos
+  anteriores. Se excluye de `t_min_ponderado` (contaminaría el promedio),
+  pero su población se reporta aparte en cada tabla agregada
+  (`poblacion_no_confiable`).
+- **`sin_ruta`**: no existe ninguna ruta a ninguna facility (red
+  desconectada). Se reporta aparte (`poblacion_sin_ruta`); en
+  `coverage_bands` es su propia categoría (no se asume `>120min`, porque
+  "sin ruta" no es lo mismo que "ruta larga"); en el Gini se topea a
+  `metricas.gini_cap_min` (240 min) — no se excluye, porque excluir a los
+  peor servidos subestimaría la desigualdad real.
+
+### Resultados
+
+| Depto | Gini | Población `no_confiable` + `sin_ruta` |
+|---|---:|---:|
+| Piura | 0.713 | 0.01% (328 de 2,195,231) |
+| Cusco | 0.650 | 1.6% (22,046 de 1,396,496) |
+| Loreto | 0.696 | 43.9% (23,566 sin ruta + 444,047 no confiable, de 1,066,046) |
+
+Distritos más críticos (top, población ponderada, `distritos_criticos.csv`):
+Manseriche/Loreto (692 min), Camanti/Cusco (341 min, pero 89.6% de su
+población es `no_confiable` — cifra poco representativa), Marcapata/Cusco
+(219 min), El Carmen de la Frontera/Piura (182 min, sierra de
+Huancabamba). Todos geográficamente plausibles (selva alta / ceja de
+selva / sierra remota), a diferencia de las cifras pre-corrección.
+
+Cruce con segunda dimensión (tamaño de población del centro poblado, como
+proxy de ruralidad — no se descargaron datos de pobreza/altitud en este
+proyecto): correlación **débil en los 3 departamentos por separado**
+(Spearman entre -0.12 y 0.06) — el tamaño del asentamiento no predice
+bien el tiempo de acceso en estos datos. Documentado como correlacional,
+no causal (posible causalidad inversa: los establecimientos y vías se
+ubican donde ya hay población).
 
 ## Fuentes de datos y sustituciones documentadas
 

@@ -1,0 +1,59 @@
+{
+  "correlacion_pearson_logpob_tmin": -0.026520024695252824,
+  "correlacion_spearman_pob_tmin": -0.008344673780438218,
+  "por_departamento": {
+    "CUSCO": {
+      "n": 7127,
+      "pearson_logpob_tmin": -0.11152731902546316,
+      "spearman_pob_tmin": -0.11519562910610641
+    },
+    "LORETO": {
+      "n": 185,
+      "pearson_logpob_tmin": 0.030809635600631248,
+      "spearman_pob_tmin": -0.08039803113694005
+    },
+    "PIURA": {
+      "n": 1708,
+      "pearson_logpob_tmin": -0.023785438588637207,
+      "spearman_pob_tmin": 0.05929286965579698
+    }
+  },
+  "interpretacion": "Relacion debil en las 3 departamentos por separado (|r|<=0.12, verificado que no es un efecto Simpson por agregacion) -- el tamano de poblacion del centro poblado NO es un buen predictor del tiempo de acceso en estos datos. Aun si lo fuera, seria correlacional, no causal: es plausible que la causalidad vaya en ambos sentidos (los establecimientos y vias se ubican donde ya hay poblacion concentrada) -- no se puede identificar causalidad con datos observacionales de corte transversal como estos.",
+  "por_quintil_poblacion": [
+    {
+      "quintil_poblacion": "Q1",
+      "poblacion_total": 6262.0,
+      "t_min_ponderado": 82.78541227509848,
+      "poblacion_min": 1.0,
+      "poblacion_max": 6.0
+    },
+    {
+      "quintil_poblacion": "Q2",
+      "poblacion_total": 17734.0,
+      "t_min_ponderado": 81.53127401225518,
+      "poblacion_min": 7.0,
+      "poblacion_max": 16.0
+    },
+    {
+      "quintil_poblacion": "Q3",
+      "poblacion_total": 45609.0,
+      "t_min_ponderado": 81.24976126787841,
+      "poblacion_min": 17.0,
+      "poblacion_max": 36.0
+    },
+    {
+      "quintil_poblacion": "Q4",
+      "poblacion_total": 99490.0,
+      "t_min_ponderado": 84.5152285824371,
+      "poblacion_min": 37.0,
+      "poblacion_max": 77.0
+    },
+    {
+      "quintil_poblacion": "Q5",
+      "poblacion_total": 3998691.0,
+      "t_min_ponderado": 25.880033451363627,
+      "poblacion_min": 78.0,
+      "poblacion_max": 214213.0
+    }
+  ]
+}

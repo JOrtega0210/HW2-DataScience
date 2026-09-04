@@ -1,0 +1,4 @@
+departamento,dep,poblacion_confiable,t_min_ponderado,n_puntos_confiables,poblacion_no_confiable,poblacion_sin_ruta,poblacion_total,pct_poblacion_sin_dato_confiable
+CUSCO,Cusco,1374450.0,33.62692519795797,7127.0,22046,0,1396496.0,0.015786654598366198
+PIURA,Piura,2194903.0,26.323963019474363,1708.0,328,0,2195231.0,0.00014941479962700963
+LORETO,Loreto,598433.0,22.671882095962843,185.0,444047,23566,1066046.0,0.4386424225596269
