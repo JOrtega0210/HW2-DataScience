@@ -13,7 +13,8 @@ análisis (departamentos, umbrales, motor de ruteo) en [`config.md`](config.md).
 Este repo se construye de forma incremental, fase por fase. Estado actual:
 
 - [x] Fase 0 — Scaffold del repositorio
-- [ ] Fase 1 — Adquisición y validación de datos
+- [x] Fase 1a — Adquisición de datos (RENIPRESS, límites administrativos, centros poblados)
+- [ ] Fase 1b — Validación de datos
 - [ ] Fase 2 — Ruteo y matriz de tiempos de viaje
 - [ ] Fase 3 — Construcción de métricas
 - [ ] Fase 4 — Dashboard Streamlit
@@ -73,7 +74,19 @@ regeneran con los comandos de arriba.
 
 ## Cómo correr el pipeline
 
-*Se documentará a medida que cada fase quede lista.*
+### Fase 1a — Adquisición de datos
+
+```bash
+cd src
+python acquisition.py
+```
+
+Descarga (o reutiliza si ya existen) RENIPRESS, límites administrativos y
+centros poblados dispersos hacia `data/raw/`, y registra cada descarga en
+`logs/download_manifest.json`. Es re-ejecutable sin re-descargar: pasar
+`force=True` a las funciones individuales (`download_renipress`,
+`download_admin_boundaries`, `download_centros_poblados_dispersos`) para
+forzar una descarga nueva.
 
 ## Cómo correr el dashboard
 
@@ -85,13 +98,18 @@ streamlit run app.py
 
 ## Fuentes de datos
 
-- RENIPRESS / SUSALUD (establecimientos de salud)
-- MINEDU / SIGMED (centros poblados con coordenadas)
+- RENIPRESS / SUSALUD (establecimientos de salud) — CSV mensual de datosabiertos.gob.pe
+- Centros poblados dispersos (INEI, vía geoportal IDEP, ArcGIS REST) —
+  **sustituye** a MINEDU/SIGMED, que resultó ser una app interactiva sin
+  endpoint estable. Ver la sección "Fuentes de datos y sustituciones
+  documentadas" en [`config.md`](config.md) para el detalle y una
+  limitación conocida (solo cubre población rural dispersa, no urbana).
+- Límites administrativos (departamento/provincia/distrito) — HDX COD-AB
+  Perú, fuente original IGN
 - OpenStreetMap — extracto de Perú (Geofabrik)
-- Límites administrativos (distrito/provincia/departamento)
 
-Fechas de descarga y licencias se documentan en `logs/download_manifest.json`
-a partir de la Fase 1.
+Fechas de descarga, tamaños y publishers se documentan automáticamente en
+`logs/download_manifest.json` cada vez que se corre `acquisition.py`.
 
 ## Limitaciones conocidas
 

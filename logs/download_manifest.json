@@ -11,11 +11,57 @@
     "engine": "osrm/osrm-backend (Docker)",
     "profile": "car (opt/car.lua)",
     "algorithm": "mld",
-    "steps": ["osrm-extract", "osrm-partition", "osrm-customize"],
+    "steps": [
+      "osrm-extract",
+      "osrm-partition",
+      "osrm-customize"
+    ],
     "built_at": "2026-09-03T20:22:00",
     "output_dir": "data/raw/osm/",
     "output_files_prefix": "peru-latest.osrm*",
     "verified_with": "GET /route/v1/driving/-77.0428,-12.0464;-77.1465,-11.9950 -> 16930.4 m, 1600.1 s",
     "note": "No versionado en git (~1.5GB). Regenerable con los 3 comandos docker documentados en README.md una vez que exista data/raw/osm/peru-latest.osm.pbf."
+  },
+  "renipress": {
+    "url": "https://www.datosabiertos.gob.pe/sites/default/files/RENIPRESS_31-08-2026.csv",
+    "local_path": "data/raw/renipress/RENIPRESS_31-08-2026.csv",
+    "size_bytes": 19763567,
+    "publisher": "SUSALUD (via datosabiertos.gob.pe)",
+    "downloaded_at": "2026-09-04T14:40:33+00:00"
+  },
+  "admin_boundaries": {
+    "url": "https://data.humdata.org/dataset/54fc7f4d-f4c0-4892-91f6-2fe7c1ecf363/resource/63647792-0951-40d2-a30e-4a0e60f7a176/download/per_admin_boundaries.geojson.zip",
+    "local_path": "data/raw/boundaries/per_admin_boundaries.geojson.zip",
+    "size_bytes": 45145713,
+    "publisher": "Instituto Geografico Nacional (IGN), via OCHA/HDX COD-AB",
+    "levels": "departamento (25), provincia (196), distrito (1873)",
+    "downloaded_at": "2026-09-04T14:41:08+00:00"
+  },
+  "centros_poblados_dispersos_piura": {
+    "url": "https://www.idep.gob.pe/geoportal/rest/services/DATOS_GEOESPACIALES/CENTROS_POBLADOS_DISPERSOS/MapServer/0/query",
+    "local_path": "data/raw/centros_poblados/centros_poblados_dispersos_piura.geojson",
+    "n_features": 1711,
+    "poblacion_total_dispersa": 106051,
+    "publisher": "INEI, via geoportal IDEP (ArcGIS REST)",
+    "limitacion": "Solo cubre centros poblados dispersos (rurales); no incluye poblacion urbana concentrada.",
+    "downloaded_at": "2026-09-04T14:40:43+00:00"
+  },
+  "centros_poblados_dispersos_cusco": {
+    "url": "https://www.idep.gob.pe/geoportal/rest/services/DATOS_GEOESPACIALES/CENTROS_POBLADOS_DISPERSOS/MapServer/0/query",
+    "local_path": "data/raw/centros_poblados/centros_poblados_dispersos_cusco.geojson",
+    "n_features": 8110,
+    "poblacion_total_dispersa": 229309,
+    "publisher": "INEI, via geoportal IDEP (ArcGIS REST)",
+    "limitacion": "Solo cubre centros poblados dispersos (rurales); no incluye poblacion urbana concentrada.",
+    "downloaded_at": "2026-09-04T14:40:47+00:00"
+  },
+  "centros_poblados_dispersos_loreto": {
+    "url": "https://www.idep.gob.pe/geoportal/rest/services/DATOS_GEOESPACIALES/CENTROS_POBLADOS_DISPERSOS/MapServer/0/query",
+    "local_path": "data/raw/centros_poblados/centros_poblados_dispersos_loreto.geojson",
+    "n_features": 1784,
+    "poblacion_total_dispersa": 106434,
+    "publisher": "INEI, via geoportal IDEP (ArcGIS REST)",
+    "limitacion": "Solo cubre centros poblados dispersos (rurales); no incluye poblacion urbana concentrada.",
+    "downloaded_at": "2026-09-04T14:40:48+00:00"
   }
 }

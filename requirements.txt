@@ -8,6 +8,7 @@ pyarrow
 osmnx>=1.9
 networkx>=3.2
 requests
+pyyaml
 tqdm
 python-dotenv
 streamlit>=1.35
