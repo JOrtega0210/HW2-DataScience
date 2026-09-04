@@ -52,9 +52,24 @@ pip install -r requirements.txt
 
 ### Motor de ruteo (OSRM vía Docker)
 
-Requiere Docker Desktop (WSL2 backend en Windows). Instrucciones de build
-del grafo OSRM para Perú se documentarán en la Fase 2, junto con
-`routing.py`.
+Requiere Docker Desktop (WSL2 backend en Windows). Con el extracto de
+`data/raw/osm/peru-latest.osm.pbf` ya descargado (ver `logs/download_manifest.json`),
+el grafo se construye una sola vez con:
+
+```bash
+docker run -t -v "${PWD}/data/raw/osm:/data" osrm/osrm-backend osrm-extract -p /opt/car.lua /data/peru-latest.osm.pbf
+docker run -t -v "${PWD}/data/raw/osm:/data" osrm/osrm-backend osrm-partition /data/peru-latest.osrm
+docker run -t -v "${PWD}/data/raw/osm:/data" osrm/osrm-backend osrm-customize /data/peru-latest.osrm
+```
+
+Y se sirve con:
+
+```bash
+docker run -d -p 5000:5000 -v "${PWD}/data/raw/osm:/data" osrm/osrm-backend osrm-routed --algorithm mld /data/peru-latest.osrm
+```
+
+Los archivos `peru-latest.osrm*` (~1.5GB) no se versionan en git; se
+regeneran con los comandos de arriba.
 
 ## Cómo correr el pipeline
 

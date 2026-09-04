@@ -1,0 +1,21 @@
+{
+  "osm_peru_extract": {
+    "url": "https://download.geofabrik.de/south-america/peru-latest.osm.pbf",
+    "resolved_url": "https://download.geofabrik.de/south-america/peru-260903.osm.pbf",
+    "local_path": "data/raw/osm/peru-latest.osm.pbf",
+    "downloaded_at": "2026-09-03T19:48:00",
+    "size_bytes": 255966119,
+    "note": "Descargado manualmente en la sesion de setup (previo a acquisition.py). Fase 1 debe registrar aqui el resto de fuentes (RENIPRESS, SIGMED, limites administrativos) cuando se automaticen las descargas."
+  },
+  "osrm_graph_build": {
+    "engine": "osrm/osrm-backend (Docker)",
+    "profile": "car (opt/car.lua)",
+    "algorithm": "mld",
+    "steps": ["osrm-extract", "osrm-partition", "osrm-customize"],
+    "built_at": "2026-09-03T20:22:00",
+    "output_dir": "data/raw/osm/",
+    "output_files_prefix": "peru-latest.osrm*",
+    "verified_with": "GET /route/v1/driving/-77.0428,-12.0464;-77.1465,-11.9950 -> 16930.4 m, 1600.1 s",
+    "note": "No versionado en git (~1.5GB). Regenerable con los 3 comandos docker documentados en README.md una vez que exista data/raw/osm/peru-latest.osm.pbf."
+  }
+}
