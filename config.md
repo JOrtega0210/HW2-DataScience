@@ -207,6 +207,41 @@ bien el tiempo de acceso en estos datos. Documentado como correlacional,
 no causal (posible causalidad inversa: los establecimientos y vías se
 ubican donde ya hay población).
 
+## Fase 4 — Dashboard (`app.py`, Streamlit)
+
+Lee unicamente archivos precomputados (`data/outputs/`, `data/processed/`,
+`logs/`) — nunca llama al motor de ruteo ni recalcula metricas en vivo;
+esa logica vive en `src/metrics.py` e `import`a desde ahi
+(`coverage_pct`, `weighted_median_access`, `simulate_facility_upgrade`).
+Probado en navegador real (Chrome, vía claude-in-chrome): las 5
+pestañas, los filtros, y el simulador de escenarios funcionan de punta a
+punta.
+
+- **KPIs**: población cubierta / más allá de 60 min, distrito con peor
+  acceso, mediana ponderada. La mediana sale muy baja (~5 min) porque
+  los puntos urbanos grandes (Piura, Castilla, Cusco, Iquitos — cientos
+  de miles de habitantes cada uno) están casi siempre junto a su propio
+  hospital resolutivo; no es un bug, refleja que la mayoría de la
+  población vive donde ya hay buen acceso, y el problema de accesibilidad
+  se concentra en la minoría rural.
+- **Mapa**: choropleth de tiempo de acceso ponderado por distrito +
+  capa de establecimientos (toggle resolutivo/no resolutivo). Usa
+  `mapbox_style="open-street-map"` — **no** `"carto-positron"`: Carto
+  cambió su política y ahora exige API key incluso para su estilo
+  "gratuito", lo que rompía el fondo del mapa (encontrado y corregido
+  probando en navegador real).
+- **Simulador de escenarios**: requirió una fuente de datos nueva de
+  Fase 2 no prevista originalmente — matriz demanda × candidatos I-3/I-4
+  (`matrix_<depto>_candidatos.parquet`, misma mecanica de
+  `routing.build_matrix(..., candidatos=True)`), porque la matriz
+  original solo tenía distancias a facilities *ya* resolutivas. Sin eso,
+  "simular un upgrade" no tiene con qué calcular. Solo funciona con
+  exactamente un departamento seleccionado (la matriz de candidatos es
+  por departamento).
+- Sidebar: departamento, umbral de tiempo, categoría, institución.
+  Selección vacía de departamentos muestra una advertencia y detiene el
+  render (no crashea).
+
 ## Fuentes de datos y sustituciones documentadas
 
 - **RENIPRESS / SUSALUD** (oferta — establecimientos de salud): CSV mensual,

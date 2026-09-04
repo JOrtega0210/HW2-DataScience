@@ -72,6 +72,23 @@ def load_supply_points(departamento: str) -> gpd.GeoDataFrame:
     return supply.reset_index(drop=True)
 
 
+def load_candidate_points(departamento: str) -> gpd.GeoDataFrame:
+    """Establecimientos I-3/I-4 activos (no resolutivos hoy, pero candidatos
+    plausibles a 'upgrade' -- son los que ya tienen mas capacidad dentro de
+    la escala no-resolutiva). Usado por el simulador de escenarios (Fase 4)."""
+    renipress_path = ROOT / "data" / "processed" / "renipress_validado.parquet"
+    df = gpd.read_parquet(renipress_path)
+    cand = df[
+        (df["DEPARTAMENTO"].str.upper() == departamento.upper())
+        & df["categoria_norm"].isin(["I-3", "I-4"])
+        & df["es_activo"]
+        & df["coords_utilizables"]
+    ].copy()
+    cand["facility_id"] = "F" + cand["COD_IPRESS"].astype(str)
+    cand = cand[["facility_id", "COD_IPRESS", "NOMBRE", "categoria_norm", "geometry"]]
+    return cand.reset_index(drop=True)
+
+
 def _haversine_m(lon1, lat1, lon2, lat2) -> float:
     r = 6_371_000.0
     p1, p2 = math.radians(lat1), math.radians(lat2)
@@ -122,12 +139,15 @@ def _query_table_batch(port: int, demand_batch: gpd.GeoDataFrame, supply: gpd.Ge
     return pd.DataFrame(rows)
 
 
-def build_matrix(departamento: str, port: int = None, force: bool = False) -> Path:
+def build_matrix(departamento: str, port: int = None, force: bool = False, candidatos: bool = False) -> Path:
+    """candidatos=True construye la matriz demanda x I-3/I-4 (para el
+    simulador de escenarios de Fase 4) en vez de demanda x resolutivas."""
     cfg = load_config()
     port = port or cfg["routing"]["car_port"]
     dep_lower = departamento.lower()
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    dest = CACHE_DIR / f"matrix_{dep_lower}.parquet"
+    suffix = "_candidatos" if candidatos else ""
+    dest = CACHE_DIR / f"matrix_{dep_lower}{suffix}.parquet"
 
     if dest.exists() and not force:
         print(f"[routing] {dest.name} ya existe, se omite (force=True para regenerar).")
@@ -139,11 +159,12 @@ def build_matrix(departamento: str, port: int = None, force: bool = False) -> Pa
         )
 
     demand = load_demand_points(departamento)
-    supply = load_supply_points(departamento)
-    print(f"[routing] {departamento}: {len(demand)} puntos de demanda, {len(supply)} facilities resolutivas")
+    supply = load_candidate_points(departamento) if candidatos else load_supply_points(departamento)
+    tipo_oferta = "candidatas (I-3/I-4)" if candidatos else "resolutivas"
+    print(f"[routing] {departamento}: {len(demand)} puntos de demanda, {len(supply)} facilities {tipo_oferta}")
 
     if len(supply) == 0:
-        raise RuntimeError(f"No hay facilities resolutivas con coordenadas utilizables en {departamento}.")
+        raise RuntimeError(f"No hay facilities {tipo_oferta} con coordenadas utilizables en {departamento}.")
 
     batches = [demand.iloc[i : i + BATCH_SIZE] for i in range(0, len(demand), BATCH_SIZE)]
     all_rows = []

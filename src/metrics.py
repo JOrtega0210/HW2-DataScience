@@ -51,6 +51,30 @@ def nearest_facility_per_demand(matrix: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def classify_confiabilidad(df: pd.DataFrame) -> pd.Series:
+    """Clasifica cualquier tabla con duration_s/distance_m/snap_confiable
+    (la matriz de ruteo cruda, o una tabla de 'mas cercano' ya resuelta) en
+    confiable/no_confiable/sin_ruta. Un snap 'confiable' (ambos extremos
+    cerca de una via mapeada) puede seguir dando una duracion sin sentido si
+    esa via es una trocha que el perfil de auto trata como casi intransitable
+    (velocidad promedio de pocos km/h en cientos de km) -- verificado en
+    Loreto (Ramon Castilla: 409km en 4906 min = 5 km/h). Se reclasifica como
+    no_confiable junto con los que fallan el chequeo de snap."""
+    vel_kmh = (df["distance_m"] / 1000) / (df["duration_s"] / 3600)
+    vel_min = load_config()["metricas"]["velocidad_minima_realista_kmh"]
+    return pd.Series(
+        np.select(
+            [
+                df["duration_s"].isna(),
+                (df["snap_confiable"] == False) | (vel_kmh < vel_min),  # noqa: E712
+            ],
+            ["sin_ruta", "no_confiable"],
+            default="confiable",
+        ),
+        index=df.index,
+    )
+
+
 def build_access_table(departamento: str) -> pd.DataFrame:
     """Una fila por punto de demanda: poblacion, ubigeo, tipo, t_min, confiabilidad."""
     matrix = pd.read_parquet(CACHE_DIR / f"matrix_{departamento.lower()}.parquet")
@@ -61,24 +85,7 @@ def build_access_table(departamento: str) -> pd.DataFrame:
     df = df.merge(_district_names(), on="ubigeo", how="left")
 
     df["t_min"] = df["duration_s"] / 60.0
-
-    # Velocidad promedio implicita en la ruta que devolvio OSRM. Un snap
-    # "confiable" (ambos extremos cerca de una via mapeada) puede seguir
-    # dando una duracion sin sentido si esa via es una trocha que el perfil
-    # de auto trata como casi intransitable (velocidad promedio de pocos
-    # km/h en cientos de km) -- verificado en Loreto (Ramon Castilla:
-    # 409km en 4906 min = 5 km/h). Se reclasifica como no_confiable.
-    vel_kmh = (df["distance_m"] / 1000) / (df["duration_s"] / 3600)
-    vel_min = load_config()["metricas"]["velocidad_minima_realista_kmh"]
-
-    df["confiabilidad"] = np.select(
-        [
-            df["duration_s"].isna(),
-            (df["snap_confiable"] == False) | (vel_kmh < vel_min),  # noqa: E712
-        ],
-        ["sin_ruta", "no_confiable"],
-        default="confiable",
-    )
+    df["confiabilidad"] = classify_confiabilidad(df)
     df["departamento"] = departamento
     return df[
         [
@@ -148,7 +155,7 @@ def weighted_mean_access(access: pd.DataFrame, level: str) -> pd.DataFrame:
     duraciones de OSRM sin sentido cuando el punto snappea muy lejos de la
     red real (ver hallazgo Loreto en config.md). 'no_confiable' y 'sin_ruta'
     se reportan aparte, nunca mezclados en el promedio numerico."""
-    cols = {"dist": ["departamento", "dep", "prov", "dist"], "prov": ["departamento", "dep", "prov"], "dep": ["departamento", "dep"]}[level]
+    cols = {"dist": ["departamento", "dep", "prov", "dist", "ubigeo"], "prov": ["departamento", "dep", "prov"], "dep": ["departamento", "dep"]}[level]
     confiable = access[access["confiabilidad"] == "confiable"].copy()
 
     def _wavg(g):
@@ -278,6 +285,54 @@ def cross_analysis_poblacion(access: pd.DataFrame) -> dict:
         ),
         "por_quintil_poblacion": by_quintil.to_dict(orient="records"),
     }
+
+
+def coverage_pct(access: pd.DataFrame, threshold_min: float, t_min_col: str = "t_min") -> float:
+    """% de poblacion (ponderada) con t_min_col <= threshold_min. sin_ruta/
+    NaN nunca cuenta como cubierto, sea cual sea el umbral."""
+    total = access["poblacion"].sum()
+    if total == 0:
+        return 0.0
+    covered = access.loc[access[t_min_col] <= threshold_min, "poblacion"].sum()
+    return covered / total
+
+
+def weighted_median_access(access: pd.DataFrame, t_min_col: str = "t_min") -> float:
+    """Mediana ponderada por poblacion del tiempo de acceso, solo sobre
+    puntos con valor numerico (confiable)."""
+    d = access.dropna(subset=[t_min_col]).sort_values(t_min_col)
+    if len(d) == 0 or d["poblacion"].sum() == 0:
+        return float("nan")
+    cum = d["poblacion"].cumsum()
+    cutoff = d["poblacion"].sum() / 2
+    return float(d.loc[cum >= cutoff, t_min_col].iloc[0])
+
+
+def simulate_facility_upgrade(access: pd.DataFrame, departamento: str, selected_facility_ids: list[str]) -> pd.DataFrame:
+    """Fase 4 - simulador de escenarios: recalcula t_min de cada punto de
+    demanda del departamento asumiendo que los facilities I-3/I-4
+    seleccionados pasan a ser resolutivos. Usa la matriz demanda x
+    candidatos precomputada en Fase 2b (matrix_<depto>_candidatos.parquet)
+    -- nunca llama al motor de ruteo. Aplica la misma clasificacion de
+    confiabilidad que build_access_table para no mezclar rutas absurdas."""
+    dep_access = access[access["departamento"] == departamento].copy()
+    dep_access["t_min_simulado"] = dep_access["t_min"]
+
+    if not selected_facility_ids:
+        return dep_access
+
+    cand_matrix = pd.read_parquet(CACHE_DIR / f"matrix_{departamento.lower()}_candidatos.parquet")
+    cand_matrix = cand_matrix[cand_matrix["facility_id"].isin(selected_facility_ids)].copy()
+    cand_matrix["confiabilidad"] = classify_confiabilidad(cand_matrix)
+    cand_matrix = cand_matrix[cand_matrix["confiabilidad"] == "confiable"]
+
+    if len(cand_matrix) == 0:
+        return dep_access
+
+    best_cand = (cand_matrix.groupby("demand_id")["duration_s"].min() / 60.0).rename("t_min_candidato")
+    dep_access = dep_access.merge(best_cand, on="demand_id", how="left")
+    dep_access["t_min_simulado"] = dep_access[["t_min", "t_min_candidato"]].min(axis=1)
+    return dep_access.drop(columns=["t_min_candidato"])
 
 
 # ---------------------------------------------------------------------------

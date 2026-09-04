@@ -17,7 +17,7 @@ Este repo se construye de forma incremental, fase por fase. Estado actual:
 - [x] Fase 1b — Validación de datos (6 reglas sobre RENIPRESS + reporte de calidad)
 - [x] Fase 2 — Routing completo (3 departamentos, matriz vía OSRM + hallazgo Loreto)
 - [x] Fase 3 — Métricas (cobertura, Gini, urbano/rural, distritos críticos)
-- [ ] Fase 4 — Dashboard Streamlit
+- [x] Fase 4 — Dashboard Streamlit (probado en navegador real)
 - [ ] Fase 5 — Reporte LaTeX
 - [ ] Presentación (video)
 
@@ -151,6 +151,13 @@ representa cómo se moviliza esa población. Cada par queda marcado con
 [`config.md`](config.md) para el detalle completo, es una limitación
 central del análisis, no un error del pipeline.
 
+Para el simulador de escenarios de Fase 4 hace falta ademas la matriz
+demanda x establecimientos candidatos (I-3/I-4, no resolutivos hoy):
+
+```bash
+python -c "from routing import build_matrix; [build_matrix(d, candidatos=True) for d in ['PIURA','CUSCO','LORETO']]"
+```
+
 ### Fase 3 — Métricas
 
 ```bash
@@ -174,7 +181,13 @@ contaminen los promedios ponderados.
 streamlit run app.py
 ```
 
-(Disponible desde la Fase 4.)
+Lee unicamente los archivos precomputados de `data/outputs/`,
+`data/processed/` y `logs/` (Fases 1-3) — no necesita el servidor OSRM
+levantado. Cinco pestañas: mapa (choropleth + facilities), distribución,
+distritos críticos, simulador de escenarios (upgrade de I-3/I-4 a
+resolutivo — requiere haber corrido `build_matrix(..., candidatos=True)`,
+ver Fase 2 arriba, y seleccionar exactamente un departamento), y calidad
+de datos. Probado end-to-end en Chrome.
 
 ## Fuentes de datos
 

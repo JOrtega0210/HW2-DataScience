@@ -1,16 +1,16 @@
-departamento,dep,prov,dist,poblacion_confiable,t_min_ponderado,n_puntos_confiables,poblacion_no_confiable,poblacion_sin_ruta,poblacion_total,pct_poblacion_sin_dato_confiable
-LORETO,Loreto,Datem del Marañon,Manseriche,8661.0,692.0285182619405,7.0,916.0,0.0,9577.0,0.09564581810587867
-CUSCO,Cusco,Quispicanchi,Camanti,285.0,340.87509941520466,25.0,2458.0,0.0,2743.0,0.8960991615020051
-LORETO,Loreto,Ucayali,Pampa Hermosa,1004.0,294.7095816733068,14.0,4782.0,0.0,5786.0,0.826477704804701
-CUSCO,Cusco,Quispicanchi,Marcapata,5024.0,218.71654226380045,159.0,14.0,0.0,5038.0,0.00277888050813815
-CUSCO,Cusco,La Convencion,Inkawasi,5291.0,217.1193340893341,43.0,0.0,0.0,5291.0,0.0
-CUSCO,Cusco,Paucartambo,Kosñipata,4805.0,198.17195456122096,33.0,150.0,0.0,4955.0,0.030272452068617558
-PIURA,Piura,Huancabamba,El Carmen de la Frontera,11435.0,182.41212199387846,24.0,0.0,0.0,11435.0,0.0
-PIURA,Piura,Huancabamba,Sondor,7022.0,181.82837273331438,14.0,0.0,0.0,7022.0,0.0
-PIURA,Piura,Huancabamba,Huarmaca,36699.0,170.32498828305947,226.0,0.0,0.0,36699.0,0.0
-PIURA,Piura,Huancabamba,Sondorillo,11524.0,159.19645594700916,11.0,0.0,0.0,11524.0,0.0
-PIURA,Piura,Huancabamba,Huancabamba,29214.0,156.22290665434383,21.0,0.0,0.0,29214.0,0.0
-PIURA,Piura,Ayabaca,Sicchez,1419.0,155.43608996946207,14.0,0.0,0.0,1419.0,0.0
-CUSCO,Cusco,Quispicanchi,Ccarhuayo,3217.0,146.99985027458294,64.0,0.0,0.0,3217.0,0.0
-CUSCO,Cusco,Paucartambo,Challabamba,9324.0,146.11373337623337,133.0,0.0,0.0,9324.0,0.0
-PIURA,Piura,Ayabaca,Ayabaca,30661.0,140.1295033321375,180.0,0.0,0.0,30661.0,0.0
+departamento,dep,prov,dist,ubigeo,poblacion_confiable,t_min_ponderado,n_puntos_confiables,poblacion_no_confiable,poblacion_sin_ruta,poblacion_total,pct_poblacion_sin_dato_confiable
+LORETO,Loreto,Datem del Marañon,Manseriche,160703,8661.0,692.0285182619405,7.0,916.0,0.0,9577.0,0.09564581810587867
+CUSCO,Cusco,Quispicanchi,Camanti,081203,285.0,340.87509941520466,25.0,2458.0,0.0,2743.0,0.8960991615020051
+LORETO,Loreto,Ucayali,Pampa Hermosa,160604,1004.0,294.7095816733068,14.0,4782.0,0.0,5786.0,0.826477704804701
+CUSCO,Cusco,Quispicanchi,Marcapata,081209,5024.0,218.71654226380045,159.0,14.0,0.0,5038.0,0.00277888050813815
+CUSCO,Cusco,La Convencion,Inkawasi,080911,5291.0,217.1193340893341,43.0,0.0,0.0,5291.0,0.0
+CUSCO,Cusco,Paucartambo,Kosñipata,081106,4805.0,198.17195456122096,33.0,150.0,0.0,4955.0,0.030272452068617558
+PIURA,Piura,Huancabamba,El Carmen de la Frontera,200303,11435.0,182.41212199387846,24.0,0.0,0.0,11435.0,0.0
+PIURA,Piura,Huancabamba,Sondor,200307,7022.0,181.82837273331438,14.0,0.0,0.0,7022.0,0.0
+PIURA,Piura,Huancabamba,Huarmaca,200304,36699.0,170.32498828305947,226.0,0.0,0.0,36699.0,0.0
+PIURA,Piura,Huancabamba,Sondorillo,200308,11524.0,159.19645594700916,11.0,0.0,0.0,11524.0,0.0
+PIURA,Piura,Huancabamba,Huancabamba,200301,29214.0,156.22290665434383,21.0,0.0,0.0,29214.0,0.0
+PIURA,Piura,Ayabaca,Sicchez,200209,1419.0,155.43608996946207,14.0,0.0,0.0,1419.0,0.0
+CUSCO,Cusco,Quispicanchi,Ccarhuayo,081204,3217.0,146.99985027458294,64.0,0.0,0.0,3217.0,0.0
+CUSCO,Cusco,Paucartambo,Challabamba,081103,9324.0,146.11373337623337,133.0,0.0,0.0,9324.0,0.0
+PIURA,Piura,Ayabaca,Ayabaca,200201,30661.0,140.1295033321375,180.0,0.0,0.0,30661.0,0.0
