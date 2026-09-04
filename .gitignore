@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Raw data (re-downloadable, can be large) — keep manifest, not the files
+data/raw/**
+!data/raw/**/.gitkeep
+
+# Large processed / routing cache — evaluate case by case before committing
+data/processed/routing_cache/*.parquet
+
+# Logs (keep dir, not noisy run logs)
+logs/*.log
+
+# LaTeX build artifacts
+report/*.aux
+report/*.log
+report/*.out
+report/*.toc
+report/*.synctex.gz
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/

@@ -1,0 +1,17 @@
+geopandas>=0.14
+pandas>=2.0
+numpy>=1.26
+shapely>=2.0
+fiona
+pyproj
+pyarrow
+osmnx>=1.9
+networkx>=3.2
+requests
+tqdm
+python-dotenv
+streamlit>=1.35
+plotly
+folium
+streamlit-folium
+matplotlib
