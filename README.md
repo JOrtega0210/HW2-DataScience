@@ -14,7 +14,7 @@ Este repo se construye de forma incremental, fase por fase. Estado actual:
 
 - [x] Fase 0 — Scaffold del repositorio
 - [x] Fase 1a — Adquisición de datos (RENIPRESS, límites administrativos, centros poblados)
-- [ ] Fase 1b — Validación de datos
+- [x] Fase 1b — Validación de datos (6 reglas sobre RENIPRESS + reporte de calidad)
 - [ ] Fase 2 — Ruteo y matriz de tiempos de viaje
 - [ ] Fase 3 — Construcción de métricas
 - [ ] Fase 4 — Dashboard Streamlit
@@ -100,6 +100,22 @@ python demand_urbano.py
 Genera `data/processed/demand_points_urbano.geojson` e imprime una
 verificación cruzada contra los totales departamentales del Excel de
 INEI (ver salida del script para las diferencias residuales conocidas).
+
+### Fase 1b — Validación de datos
+
+```bash
+python validation.py
+```
+
+Aplica las 6 reglas de calidad de datos (ver [`config.md`](config.md))
+sobre los establecimientos RENIPRESS de los 3 departamentos, normaliza
+`CATEGORIA`/`ESTADO` a la definición de "resolutivo", y exporta:
+
+- `data/processed/renipress_validado.parquet` — todos los registros, con
+  una columna de banderas por regla (nada se descarta silenciosamente) y
+  `coords_utilizables` para saber cuáles sirven para ruteo en Fase 2.
+- `logs/data_quality_report.json` — conteos y la acción tomada por cada
+  regla.
 
 ## Cómo correr el dashboard
 

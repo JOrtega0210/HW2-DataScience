@@ -1,0 +1,74 @@
+{
+  "generado_en": "2026-09-04T15:20:35+00:00",
+  "fuente": "data\\raw\\renipress\\RENIPRESS_31-08-2026.csv",
+  "n_registros_nacional": 36004,
+  "n_registros_3_departamentos": 4512,
+  "departamentos": [
+    "PIURA",
+    "CUSCO",
+    "LORETO"
+  ],
+  "reglas": {
+    "1_coords_missing_or_zero": {
+      "descripcion": "Coordenadas nulas o efectivamente cero (|valor| < 0.001 grados)",
+      "n_flagged": 1309,
+      "accion": "Se mantienen en el dataset (columna coords_utilizables=False); se excluyen del ruteo en Fase 2."
+    },
+    "2_coords_outside_bbox": {
+      "descripcion": "Coordenadas presentes pero fuera del bounding box de Peru",
+      "n_flagged": 0,
+      "accion": "Se mantienen en el dataset (columna coords_utilizables=False); se excluyen del ruteo en Fase 2."
+    },
+    "3_coords_swapped": {
+      "descripcion": "De las marcadas fuera de bbox, cuantas caen dentro de Peru si se invierte lat/lon",
+      "n_flagged": 0,
+      "accion": "Ninguna encontrada en estos 3 departamentos; de existir, la correccion (invertir) queda pendiente de aplicar manualmente antes de usarse en ruteo."
+    },
+    "4_outside_declared_district": {
+      "descripcion": "El punto (cuando tiene coordenadas utilizables) no cae dentro del poligono del distrito que declara su propio UBIGEO",
+      "n_flagged": 499,
+      "n_verificables": 3203,
+      "accion": "Se mantienen en el dataset con la bandera activada; no se excluyen automaticamente (el distrito declarado puede ser correcto y el punto simplemente estar cerca del limite)."
+    },
+    "5_duplicate_cod_ipress": {
+      "descripcion": "COD_IPRESS duplicado dentro de los 3 departamentos",
+      "n_flagged": 0,
+      "accion": "Ninguno encontrado."
+    },
+    "6_encoding_issues": {
+      "descripcion": "Caracter de reemplazo U+FFFD en columnas de texto (NOMBRE, DIRECCION, INSTITUCION, PROVINCIA, DISTRITO, TIPO_ESTABLECIMIENTO)",
+      "n_flagged": 0,
+      "accion": "Ninguno encontrado en RENIPRESS para estos 3 departamentos (si aparecieran, se mantendrian con la bandera activa; ver limites_administrativos.geojson que si presenta este problema, documentado en config.md)."
+    }
+  },
+  "normalizacion_categoria": {
+    "categoria_0_a_sin_categoria": 1202,
+    "descripcion": "RENIPRESS usa el valor literal '0' quiere decir que no aplica la escala I-1..III-E (servicios de apoyo, sin internamiento). Se normaliza a 'SIN_CATEGORIA' y se trata como no resolutivo."
+  },
+  "normalizacion_estado": {
+    "valores_unicos_encontrados": [
+      "ACTIVO",
+      "BAJA DEFINITIVA",
+      "BAJA DEFINITIVA DE OFICIO",
+      "BAJA PROVISIONAL",
+      "BAJA PROVISIONAL DE OFICIO",
+      "CIERRE TEMPORAL DE OFICIO",
+      "CIERRE TEMPORAL DE PARTE"
+    ],
+    "descripcion": "ESTADO es un campo controlado (sin typos detectados); solo 'ACTIVO' cuenta como operativo para la definicion de resolutivo. El resto son variantes de cierre temporal/definitivo."
+  },
+  "resolutivo": {
+    "PIURA": {
+      "n_resolutivo": 33,
+      "n_resolutivo_coords_utilizables": 32
+    },
+    "CUSCO": {
+      "n_resolutivo": 27,
+      "n_resolutivo_coords_utilizables": 26
+    },
+    "LORETO": {
+      "n_resolutivo": 14,
+      "n_resolutivo_coords_utilizables": 14
+    }
+  }
+}

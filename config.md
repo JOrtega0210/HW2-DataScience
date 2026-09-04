@@ -57,21 +57,50 @@ Exactamente tres, uno por macro-región (ver YAML arriba: `departamentos`).
 
 ## Definición de "resolutivo"
 
-- Estado operativo: activo (ver normalización de estados en `validation.py`,
-  Fase 1b — el campo de estado en RENIPRESS no está limpio y requiere reglas
-  explícitas, no un simple `== "ACTIVO"`)
-- Categoría (normalizada): ver `resolutivo.categorias` en el YAML
-- Todo lo demás (`I-1`..`I-4`, sin categoría, categorías no reconocidas) se
-  mantiene en el dataset pero se excluye del cómputo de facility más cercana.
+- Estado operativo: `ESTADO == "ACTIVO"` (verificado en Fase 1b: el campo
+  **sí** es un vocabulario controlado y limpio — 7 valores únicos, sin
+  typos: `ACTIVO`, `BAJA DEFINITIVA`, `BAJA DEFINITIVA DE OFICIO`,
+  `BAJA PROVISIONAL`, `BAJA PROVISIONAL DE OFICIO`,
+  `CIERRE TEMPORAL DE OFICIO`, `CIERRE TEMPORAL DE PARTE`. No hace falta
+  normalización difusa, solo la decisión de que únicamente `ACTIVO` cuenta
+  como operativo — el resto son variantes de cierre)
+- Categoría (normalizada): ver `resolutivo.categorias` en el YAML. RENIPRESS
+  usa el valor literal `"0"` para establecimientos a los que no aplica la
+  escala I-1..III-E (servicios médicos de apoyo, sin internamiento, etc.)
+  — se normaliza a `SIN_CATEGORIA` en `validation.py`.
+- Todo lo demás (`I-1`..`I-4`, `SIN_CATEGORIA`) se mantiene en el dataset
+  pero se excluye del cómputo de facility más cercana.
 
-## Reglas de validación (Fase 1b — pendiente)
+## Reglas de validación (Fase 1b — aplicadas sobre 4,512 establecimientos
+## de Piura/Cusco/Loreto, de 36,004 a nivel nacional)
 
-1. Coordenadas nulas / cero
-2. Coordenadas fuera del bounding box (`bbox_peru` en el YAML)
-3. Lat/lon posiblemente invertidas
-4. Punto fuera del polígono distrital que declara su propio registro
-5. Códigos de establecimiento duplicados
-6. Problemas de encoding en campos de texto (UTF-8 vs. latin-1)
+Resultados completos en `logs/data_quality_report.json` (se regenera con
+`python src/validation.py`). Resumen:
+
+1. **Coordenadas nulas o cero** (`NORTE`/`ESTE` nulos, o ambos con
+   `|valor| < 0.001°`): **1,309 registros (29%)**. Se mantienen en el
+   dataset (`coords_utilizables=False`) y se excluyen del ruteo en Fase 2.
+   Nota: `NORTE`/`ESTE` pese al nombre (que sugiere UTM) son coordenadas
+   decimales WGS84 — `NORTE`=latitud, `ESTE`=longitud, verificado contra
+   el rango de Perú.
+2. **Coordenadas fuera del bounding box** (presentes pero no-cero): **0**.
+3. **Lat/lon posiblemente invertidas**: **0** — de las flageadas en la
+   regla 2, ninguna encaja en Perú al invertir lat/lon (regla 2 dio 0, así
+   que no había candidatas).
+4. **Punto fuera del polígono de su distrito declarado (UBIGEO)**:
+   **499 de 3,203 verificables (15.6%)**. Verificado que no es un bug: 498
+   de esos 499 caen dentro de un distrito *real* distinto al declarado
+   (mayormente distritos contiguos dentro de la misma ciudad — p. ej.
+   Cusco/San Sebastián/Wanchaq, Piura/Castilla/Veintiséis de Octubre —
+   consistente con imprecisión de geocodificación en zonas urbanas densas
+   donde el límite distrital cruza la propia manzana). Se mantienen con la
+   bandera activada, no se excluyen automáticamente.
+5. **Códigos de establecimiento duplicados** (`COD_IPRESS`): **0**
+   (tampoco hay duplicados a nivel nacional).
+6. **Problemas de encoding** (carácter de reemplazo U+FFFD en campos de
+   texto): **0** en RENIPRESS para estos 3 departamentos. Sí se encontró
+   este problema en los límites administrativos (`"Perú"` → `"Per�"` en
+   `adm0_name`), documentado arriba.
 
 ## Fuentes de datos y sustituciones documentadas
 
