@@ -1,0 +1,16 @@
+\begin{table}
+\caption{Reglas de validaci\'on aplicadas a RENIPRESS (Fase 1b).}
+\label{tab:validacion}
+\begin{tabular}{lrl}
+\toprule
+Regla & N marcados & Acción \\
+\midrule
+1 coords missing or zero & 1309 & Se mantienen en el dataset (columna coords\_utilizables=False); se excl... \\
+2 coords outside bbox & 0 & Se mantienen en el dataset (columna coords\_utilizables=False); se excl... \\
+3 coords swapped & 0 & Ninguna encontrada en estos 3 departamentos; de existir, la correccion... \\
+4 outside declared district & 499 & Se mantienen en el dataset con la bandera activada; no se excluyen aut... \\
+5 duplicate cod ipress & 0 & Ninguno encontrado. \\
+6 encoding issues & 0 & Ninguno encontrado en RENIPRESS para estos 3 departamentos (si apareci... \\
+\bottomrule
+\end{tabular}
+\end{table}

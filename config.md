@@ -242,6 +242,33 @@ punta.
   Selección vacía de departamentos muestra una advertencia y detiene el
   render (no crashea).
 
+## Fase 5 — Reporte (`src/export.py`, `report/main.tex`)
+
+`export.py` genera 4 figuras (PDF vectorial, `report/figures/`) y 4
+tablas (fragmentos `.tex` con `df.to_latex(booktabs=True)`,
+`report/tables/`) a partir \'unicamente de `data/outputs/` — nada se
+tipea a mano ni se pega como captura del dashboard. `main.tex` las
+importa con `\input`/`\includegraphics`. Compilado con `pdflatex`
+(MiKTeX), 2 pasadas para resolver referencias cruzadas: 9 p\'aginas,
+dentro del rango 8-12 pedido.
+
+Bug encontrado al compilar por primera vez: `df.to_latex(escape=False)`
+dejaba porcentajes sin escapar (`"0.0%"`) — un `%` sin escapar en LaTeX
+abre un comentario y se come el resto de la fila (incluido el `\\` de
+fin de fila), produciendo `! Extra alignment tab has been changed to
+\cr.` en la fila siguiente. Se corrigi\'o formateando los porcentajes
+como `f"{x*100:.1f}\\%"` antes de pasarlos a `to_latex`. Tambi\'en se
+agreg\'o `\usepackage{cmap}` porque, sin \'el, las ligaduras "fi"
+(confiable, figura, definici\'on) no llevan mapa ToUnicode y el texto
+copiado del PDF sale roto ("conable", "gura") aunque el PDF se vea bien
+visualmente.
+
+Antes de escribir la prosa del reporte se verificaron contra los CSV/JSON
+reales varias cifras que se hab\'ian escrito de memoria y estaban mal:
+el % de poblaci\'on "sin dato confiable" de Loreto (36.1% escrito vs.
+41.7% real) y el rango de participaci\'on poblacional rural (se
+hab\'ia excluido el 2.0% de Loreto del rango "5%-16%" citado).
+
 ## Fuentes de datos y sustituciones documentadas
 
 - **RENIPRESS / SUSALUD** (oferta — establecimientos de salud): CSV mensual,

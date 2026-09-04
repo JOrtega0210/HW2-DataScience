@@ -18,7 +18,7 @@ Este repo se construye de forma incremental, fase por fase. Estado actual:
 - [x] Fase 2 — Routing completo (3 departamentos, matriz vía OSRM + hallazgo Loreto)
 - [x] Fase 3 — Métricas (cobertura, Gini, urbano/rural, distritos críticos)
 - [x] Fase 4 — Dashboard Streamlit (probado en navegador real)
-- [ ] Fase 5 — Reporte LaTeX
+- [x] Fase 5 — Reporte LaTeX (9 páginas, compilado a PDF)
 - [ ] Presentación (video)
 
 ## Estructura del repositorio
@@ -40,8 +40,10 @@ Este repo se construye de forma incremental, fase por fase. Estado actual:
 │   └── outputs/             # tablas/figuras finales usadas en el reporte y dashboard
 ├── app.py                   # Fase 4 — dashboard Streamlit
 ├── report/
-│   ├── main.tex              # Fase 5 — reporte técnico
-│   └── figures/
+│   ├── main.tex              # Fase 5 — reporte técnico (fuente)
+│   ├── main.pdf               # Fase 5 — reporte técnico (compilado)
+│   ├── figures/                # generadas por src/export.py
+│   └── tables/                 # generadas por src/export.py
 └── logs/                     # logs de ejecución y reporte de calidad de datos
 ```
 
@@ -174,6 +176,20 @@ población (`cruce_poblacion_acceso.json`). Clasifica cada punto en
 sección Fase 3) para que las rutas de OSRM con snap lejano o velocidad
 implícita irreal (p. ej. 409km en 4,906 min en un caso real de Loreto) no
 contaminen los promedios ponderados.
+
+### Fase 5 — Reporte LaTeX
+
+```bash
+python export.py            # genera report/figures/ y report/tables/ desde data/outputs/
+cd ..\report
+pdflatex main.tex && pdflatex main.tex   # 2 pasadas, para resolver referencias cruzadas
+```
+
+Requiere una distribución LaTeX (MiKTeX o TeX Live) con `pdflatex`. La
+primera compilación puede tardar varios minutos si MiKTeX necesita
+instalar paquetes faltantes (`babel`, `caption`, `float`, `cmap`, etc.)
+automáticamente. Produce `report/main.pdf` (9 páginas). Tanto `main.tex`
+como `main.pdf` están versionados en git.
 
 ## Cómo correr el dashboard
 
