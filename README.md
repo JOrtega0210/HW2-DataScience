@@ -8,6 +8,44 @@ representan costa, sierra y selva.
 Ver el enunciado completo en el issue del curso y los parámetros del
 análisis (departamentos, umbrales, motor de ruteo) en [`config.md`](config.md).
 
+**📄 [Reporte técnico completo (PDF, 9 páginas)](report/main.pdf)**
+
+## Resultados principales
+
+Pipeline reproducible sobre 10,801 puntos de demanda (4.66 millones de
+habitantes) en Piura, Cusco y Loreto. El hallazgo central es la brecha
+entre regiones: mientras el 78% de la población conjunta llega en menos
+de 60 minutos a un establecimiento resolutivo, en **Loreto el 43.9% de
+los puntos de demanda no tiene ningún tiempo de acceso vial confiable**
+—la red mapeada en OpenStreetMap es prácticamente inexistente fuera de
+Iquitos— y 162 puntos (9%) no tienen ninguna ruta válida en absoluto.
+
+| Departamento | Población | T. acceso ponderado | Gini | % sin dato confiable |
+|---|---:|---:|---:|---:|
+| Piura | 2,195,231 | 26.3 min | 0.713 | 0.01% |
+| Cusco | 1,396,496 | 33.6 min | 0.650 | 1.6% |
+| Loreto | 1,066,046 | 22.7 min* | 0.696 | 43.9% |
+
+\* Engañosamente bajo: se calcula solo sobre el 56% de la población de
+Loreto con dato confiable, dominado por Iquitos. Ver el reporte para el
+detalle.
+
+El distrito con peor acceso confiable es **Manseriche** (Loreto, 692 min
+ponderados). El detalle completo, la metodología, y la discusión de cada
+hallazgo están en el [reporte técnico](report/main.pdf) y en
+[`config.md`](config.md).
+
+### Dashboard interactivo
+
+| Mapa + KPIs | Distritos críticos |
+|---|---|
+| ![Mapa de acceso ponderado y KPIs](docs/screenshots/dashboard_mapa_kpis.jpg) | ![Tabla de distritos críticos](docs/screenshots/dashboard_distritos_criticos.jpg) |
+
+`streamlit run app.py` (ver instrucciones más abajo) levanta un
+dashboard con mapa, distribución del tiempo de acceso, distritos
+críticos, un simulador de escenarios (upgradear establecimientos I-3/I-4
+a resolutivos) y un panel de calidad de datos.
+
 ## Estado del proyecto
 
 Este repo se construye de forma incremental, fase por fase. Estado actual:
@@ -26,6 +64,7 @@ Este repo se construye de forma incremental, fase por fase. Estado actual:
 ```
 ├── config.md               # todos los parámetros (departamentos, umbrales, rutas, motor de ruteo)
 ├── requirements.txt
+├── docs/screenshots/         # capturas del dashboard usadas en este README
 ├── src/
 │   ├── config.py             # parser del bloque yaml en config.md
 │   ├── acquisition.py       # Fase 1 — descarga de fuentes
@@ -222,5 +261,32 @@ Fechas de descarga, tamaños y publishers se documentan automáticamente en
 
 ## Limitaciones conocidas
 
-*Se completa en la Fase 5 (reporte), pero se resume aquí también para
-quien solo revise el repo.*
+Detalle completo en la Sección 6 del [reporte técnico](report/main.pdf)
+y en [`config.md`](config.md). Resumen:
+
+- **Cobertura de OpenStreetMap en la Amazonía** — límite metodológico
+  central, no una nota al pie. Mediana de distancia de un punto de
+  demanda de Loreto a la vía mapeada más cercana: 43.3 km (máx. 414 km).
+  El ruteo vehicular es estructuralmente inadecuado para representar
+  cómo se moviliza la mayoría de la población amazónica (transporte
+  fluvial).
+- **29% de los establecimientos RENIPRESS** de los 3 departamentos no
+  tienen coordenadas utilizables; 15.6% de los geocodificados caen fuera
+  de su distrito declarado (verificado: dentro de un distrito real y
+  contiguo, no basura).
+- **Supuesto de disponibilidad**: un establecimiento `ACTIVO` en
+  RENIPRESS no garantiza camas, quirófano libre, o personal de guardia
+  en el momento de la emergencia.
+- **Sin datos de ambulancias**: se asume acceso inmediato a un vehículo,
+  sin modelar tiempo de despacho.
+- **Población urbana estimada, no censada directamente**: no existe una
+  capa pública con población urbana concentrada como puntos
+  individuales; se estimó por distrito (total proyectado INEI 2026 menos
+  población dispersa censada), simplificación deliberada.
+- **Discrepancia residual de población**: Cusco (4 distritos creados en
+  2021, aún no reflejados en los límites administrativos usados) y
+  Loreto (discrepancia que ya existe dentro del propio Excel de INEI).
+- **Vigencia de fuentes**: límites administrativos al 2020-07-14,
+  RENIPRESS al 31 de agosto de 2026, población dispersa del Censo 2017.
+- **Alcance geográfico**: resultados de Piura/Cusco/Loreto no son
+  necesariamente generalizables a otros departamentos.
