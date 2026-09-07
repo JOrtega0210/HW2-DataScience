@@ -21,6 +21,9 @@ report/*.out
 report/*.toc
 report/*.synctex.gz
 
+# Notas personales de grabacion, no es un deliverable del enunciado
+docs/guion_video.txt
+
 # OS / editor
 .DS_Store
 Thumbs.db

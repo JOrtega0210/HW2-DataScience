@@ -48,16 +48,15 @@ a resolutivos) y un panel de calidad de datos.
 
 ## Estado del proyecto
 
-Este repo se construye de forma incremental, fase por fase. Estado actual:
+Este repo se construye de forma incremental, fase por fase:
 
-- [x] Fase 0 — Scaffold del repositorio
-- [x] Fase 1a — Adquisición de datos (RENIPRESS, límites administrativos, centros poblados)
-- [x] Fase 1b — Validación de datos (6 reglas sobre RENIPRESS + reporte de calidad)
-- [x] Fase 2 — Routing completo (3 departamentos, matriz vía OSRM + hallazgo Loreto)
-- [x] Fase 3 — Métricas (cobertura, Gini, urbano/rural, distritos críticos)
-- [x] Fase 4 — Dashboard Streamlit (probado en navegador real)
-- [x] Fase 5 — Reporte LaTeX (9 páginas, compilado a PDF)
-- [ ] Presentación (video)
+1. Scaffold del repositorio
+2. Adquisición de datos (RENIPRESS, límites administrativos, centros poblados)
+3. Validación de datos (6 reglas sobre RENIPRESS + reporte de calidad)
+4. Routing completo (3 departamentos, matriz vía OSRM + hallazgo Loreto)
+5. Métricas (cobertura, Gini, urbano/rural, distritos críticos)
+6. Dashboard Streamlit (probado en navegador real)
+7. Reporte LaTeX (9 páginas, compilado a PDF)
 
 ## Estructura del repositorio
 
