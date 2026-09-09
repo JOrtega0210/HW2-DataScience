@@ -5,6 +5,8 @@ centros poblados hasta el establecimiento de salud resolutivo más cercano
 (capacidad quirúrgica / cesárea), en tres departamentos de Perú que
 representan costa, sierra y selva.
 
+Integrantes: Joaquin Ortega, Sergio Giraldo
+
 Ver el enunciado completo en el issue del curso y los parámetros del
 análisis (departamentos, umbrales, motor de ruteo) en [`config.md`](config.md).
 
